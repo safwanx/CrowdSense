@@ -140,7 +140,7 @@ def test_folder() -> List[Dict[str, Any]]:
     """Test model on all images in the test folder"""
     try:
         # Define the path to your image folder
-        image_folder = "D:/Documents/Programming/SP/CrowdSense/Crowd site/CrowdSense/image"  # You can change this to your image folder path
+        image_folder = "D:/Documents/Programming/SP/CrowdSense/CrowdSense1/test" # You can change this to your image folder path
         
         # Get list of image files
         image_files = []
