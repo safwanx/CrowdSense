@@ -8,7 +8,8 @@ import logging
 import math
 import sys
 import os
-from typing import Dict, Any
+from typing import Dict, Any, List
+from glob import glob
 
 # Add the model directory to path
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -116,7 +117,7 @@ def read_root():
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)) -> Dict[str, Any]:
     """Predict crowd count from image"""
-    if not file.content_type.startswith("D:/Documents/Programming/SP/CrowdSense/Crowd site/CrowdSense/image"):
+    if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
     
     try:
@@ -133,3 +134,56 @@ async def predict(file: UploadFile = File(...)) -> Dict[str, Any]:
 def health_check():
     """Health check endpoint"""
     return {"status": "healthy"}
+
+@app.get("/image")
+def test_folder() -> List[Dict[str, Any]]:
+    """Test model on all images in the test folder"""
+    try:
+        # Define the path to your image folder
+        image_folder = "D:/Documents/Programming/SP/CrowdSense/Crowd site/CrowdSense/image"  # You can change this to your image folder path
+        
+        # Get list of image files
+        image_files = []
+        for ext in ['*.jpg', '*.jpeg', '*.png']:
+            image_files.extend(glob(os.path.join(image_folder, ext)))
+        
+        if not image_files:
+            raise HTTPException(status_code=404, detail="No images found in test folder")
+        
+        results = []
+        
+        for img_path in image_files:
+            try:
+                # Read image
+                with open(img_path, 'rb') as f:
+                    image_bytes = f.read()
+                
+                # Process image
+                image_tensor = process_image(image_bytes)
+                
+                # Get prediction
+                prediction = get_prediction(image_tensor)
+                
+                # Add filename to result
+                result = {
+                    "filename": os.path.basename(img_path),
+                    "count": prediction["count"],
+                    "status": "success"
+                }
+                results.append(result)
+                
+                logger.info(f"Processed {img_path}: Count = {prediction['count']}")
+                
+            except Exception as e:
+                logger.error(f"Error processing {img_path}: {str(e)}")
+                results.append({
+                    "filename": os.path.basename(img_path),
+                    "status": "error",
+                    "error": str(e)
+                })
+        
+        return results
+        
+    except Exception as e:
+        logger.error(f"Error in test_folder: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
