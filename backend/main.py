@@ -92,10 +92,10 @@ def get_prediction(image_tensor: torch.Tensor) -> Dict[str, Any]:
                         w_end = w_start + w_step if j != w_stride-1 else w
                         
                         patch = image_tensor[:, :, h_start:h_end, w_start:w_end]
-                        density_map = model(patch)[0]  # Note: model returns tuple of (output, features)
+                        density_map = model(patch)[0]  
                         total_count += density_map.sum().item()
             else:
-                density_map = model(image_tensor)[0]  # Note: model returns tuple of (output, features)
+                density_map = model(image_tensor)[0]  
                 total_count = density_map.sum().item()
             
             return {
