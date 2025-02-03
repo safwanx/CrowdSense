@@ -1,6 +1,10 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 import torch
+import numpy as np
+import cv2
 from PIL import Image
 import io
 from torchvision import transforms
@@ -8,8 +12,8 @@ import logging
 import math
 import sys
 import os
-from typing import Dict, Any, List
-from glob import glob
+from typing import Dict, Any
+import base64
 
 # Add the model directory to path
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -31,10 +35,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Create static folder if it doesn't exist
+os.makedirs('static', exist_ok=True)
+
+# Mount static files directory
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 # Initialize model
 try:
     model = vgg19_trans()
-    model.load_state_dict(torch.load("C:/Users/srian/Downloads/model_1.pth", map_location='cpu'))
+    model.load_state_dict(torch.load("/model_1.pth", map_location='cpu'))
     model.eval()
     logger.info("Model loaded successfully")
 except Exception as e:
@@ -47,10 +57,12 @@ transform = transforms.Compose([
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
-def process_image(image_bytes: bytes) -> torch.Tensor:
+def process_image(image_bytes: bytes) -> tuple[torch.Tensor, np.ndarray]:
     """Process uploaded image for model input"""
     try:
+        # Read image
         image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
+        original_size = image.size
         
         # Calculate new dimensions while maintaining aspect ratio
         min_size = 512
@@ -64,42 +76,63 @@ def process_image(image_bytes: bytes) -> torch.Tensor:
         new_h = int(h * scale)
         new_w = int(w * scale)
         
-        image = image.resize((new_w, new_h), Image.BICUBIC)
-        img_tensor = transform(image).unsqueeze(0)
+        # Resize image
+        image_resized = image.resize((new_w, new_h), Image.BICUBIC)
         
-        return img_tensor
+        # Convert to tensor
+        img_tensor = transform(image_resized).unsqueeze(0)
+        
+        # Convert to numpy array for overlay
+        original_np = np.array(image)
+        
+        return img_tensor, original_np
     except Exception as e:
         logger.error(f"Error processing image: {str(e)}")
         raise HTTPException(status_code=400, detail="Invalid image format")
 
-def get_prediction(image_tensor: torch.Tensor) -> Dict[str, Any]:
-    """Get crowd count prediction"""
+def generate_heatmap(density_map: np.ndarray, original_image: np.ndarray) -> np.ndarray:
+    """Generate heatmap overlay"""
+    try:
+        # Resize density map to match original image size
+        density_map = cv2.resize(density_map, (original_image.shape[1], original_image.shape[0]))
+        
+        # Normalize density map
+        density_map = (density_map - density_map.min()) / (density_map.max() - density_map.min() + 1e-8)
+        
+        # Create heatmap
+        heatmap = cv2.applyColorMap((density_map * 255).astype(np.uint8), cv2.COLORMAP_JET)
+        
+        # Create overlay
+        overlay = cv2.addWeighted(original_image, 0.6, heatmap, 0.4, 0)
+        
+        return overlay
+    except Exception as e:
+        logger.error(f"Error generating heatmap: {str(e)}")
+        raise
+
+def get_prediction(image_tensor: torch.Tensor, original_image: np.ndarray) -> Dict[str, Any]:
+    """Get crowd count prediction and heatmap"""
     try:
         with torch.no_grad():
-            b, c, h, w = image_tensor.shape
-            if h >= 3584 or w >= 3584:
-                h_stride = math.ceil(h / 3584)
-                w_stride = math.ceil(w / 3584)
-                h_step = h // h_stride
-                w_step = w // w_stride
-                
-                total_count = 0
-                for i in range(h_stride):
-                    for j in range(w_stride):
-                        h_start = i * h_step
-                        h_end = h_start + h_step if i != h_stride-1 else h
-                        w_start = j * w_step
-                        w_end = w_start + w_step if j != w_stride-1 else w
-                        
-                        patch = image_tensor[:, :, h_start:h_end, w_start:w_end]
-                        density_map = model(patch)[0]  
-                        total_count += density_map.sum().item()
-            else:
-                density_map = model(image_tensor)[0]  
-                total_count = density_map.sum().item()
+            # Get density map prediction
+            density_map = model(image_tensor)[0]
+            
+            # Calculate count
+            count = density_map.sum().item()
+            
+            # Convert density map to numpy
+            density_map_np = density_map.squeeze().cpu().numpy()
+            
+            # Generate heatmap overlay
+            overlay = generate_heatmap(density_map_np, original_image)
+            
+            # Save overlay image
+            filename = f"heatmap_{int(count)}.jpg"
+            cv2.imwrite(os.path.join("static", filename), cv2.cvtColor(overlay, cv2.COLOR_RGB2BGR))
             
             return {
-                "count": round(total_count),
+                "count": round(count),
+                "heatmap_url": f"/static/{filename}",
                 "status": "success"
             }
     except Exception as e:
@@ -109,10 +142,7 @@ def get_prediction(image_tensor: torch.Tensor) -> Dict[str, Any]:
 @app.get("/")
 def read_root():
     """Root endpoint"""
-    return {
-        "message": "Welcome to the Crowd Management API",
-        "status": "active"
-    }
+    return {"message": "Welcome to the Crowd Management API"}
 
 @app.post("/predict/")
 async def predict(file: UploadFile = File(...)) -> Dict[str, Any]:
@@ -121,69 +151,16 @@ async def predict(file: UploadFile = File(...)) -> Dict[str, Any]:
         raise HTTPException(status_code=400, detail="File must be an image")
     
     try:
+        # Read image
         image_bytes = await file.read()
-        image_tensor = process_image(image_bytes)
-        result = get_prediction(image_tensor)
+        
+        # Process image
+        image_tensor, original_image = process_image(image_bytes)
+        
+        # Get prediction and heatmap
+        result = get_prediction(image_tensor, original_image)
+        
         return result
-    
     except Exception as e:
         logger.error(f"Error processing request: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/health")
-def health_check():
-    """Health check endpoint"""
-    return {"status": "healthy"}
-
-@app.get("/image")
-def test_folder() -> List[Dict[str, Any]]:
-    """Test model on all images in the test folder"""
-    try:
-        # Define the path to your image folder
-        image_folder = "D:/Documents/Programming/SP/CrowdSense/CrowdSense1/test" # You can change this to your image folder path
-        
-        # Get list of image files
-        image_files = []
-        for ext in ['*.jpg', '*.jpeg', '*.png']:
-            image_files.extend(glob(os.path.join(image_folder, ext)))
-        
-        if not image_files:
-            raise HTTPException(status_code=404, detail="No images found in test folder")
-        
-        results = []
-        
-        for img_path in image_files:
-            try:
-                # Read image
-                with open(img_path, 'rb') as f:
-                    image_bytes = f.read()
-                
-                # Process image
-                image_tensor = process_image(image_bytes)
-                
-                # Get prediction
-                prediction = get_prediction(image_tensor)
-                
-                # Add filename to result
-                result = {
-                    "filename": os.path.basename(img_path),
-                    "count": prediction["count"],
-                    "status": "success"
-                }
-                results.append(result)
-                
-                logger.info(f"Processed {img_path}: Count = {prediction['count']}")
-                
-            except Exception as e:
-                logger.error(f"Error processing {img_path}: {str(e)}")
-                results.append({
-                    "filename": os.path.basename(img_path),
-                    "status": "error",
-                    "error": str(e)
-                })
-        
-        return results
-        
-    except Exception as e:
-        logger.error(f"Error in test_folder: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
