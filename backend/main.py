@@ -41,10 +41,15 @@ os.makedirs('static', exist_ok=True)
 # Mount static files directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Initialize model
+# Determine device: GPU if available, otherwise CPU
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+logger.info(f"Using device: {device}")
+
+# Initialize model and load weights to the appropriate device
 try:
     model = vgg19_trans()
-    model.load_state_dict(torch.load("/model_1.pth", map_location='cpu'))
+    model.load_state_dict(torch.load("C:/Users/srian/Downloads/model_1.pth", map_location=device))
+    model.to(device)
     model.eval()
     logger.info("Model loaded successfully")
 except Exception as e:
@@ -114,6 +119,9 @@ def get_prediction(image_tensor: torch.Tensor, original_image: np.ndarray) -> Di
     """Get crowd count prediction and heatmap"""
     try:
         with torch.no_grad():
+            # Move tensor to the correct device
+            image_tensor = image_tensor.to(device)
+            
             # Get density map prediction
             density_map = model(image_tensor)[0]
             
