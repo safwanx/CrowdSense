@@ -48,7 +48,7 @@ logger.info(f"Using device: {device}")
 # Initialize model and load weights to the appropriate device
 try:
     model = vgg19_trans()
-    model.load_state_dict(torch.load("C:/Users/srian/Downloads/model_1.pth", map_location=device))
+    model.load_state_dict(torch.load("C:/Users/srian/Downloads/MAN/model_1.pth", map_location=device))
     model.to(device)
     model.eval()
     logger.info("Model loaded successfully")

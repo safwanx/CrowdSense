@@ -3,178 +3,391 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crowd Counter</title>
+    <title>CrowdSense</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+            --bg-color: #ecf0f1;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .logo i {
+            color: var(--secondary-color);
         }
 
         .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 20px;
         }
 
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
         }
 
         .upload-section {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .dropzone {
             border: 2px dashed #ccc;
+            padding: 2rem;
             border-radius: 8px;
-        }
-
-        .upload-section:hover {
-            border-color: #666;
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        .upload-btn {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
+            margin: 1rem 0;
+            transition: all 0.3s ease;
             cursor: pointer;
-            font-size: 16px;
         }
 
-        .upload-btn:hover {
-            background-color: #45a049;
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--secondary-color);
+            background-color: rgba(52, 152, 219, 0.1);
         }
 
-        .results-section {
-            display: none;
-            margin-top: 30px;
+        .analysis-section {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .result-card {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            margin-top: 1rem;
+            display: none;
         }
 
-        .count-display {
-            font-size: 24px;
-            color: #333;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .stat-card {
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: 8px;
             text-align: center;
-            margin: 20px 0;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .density-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: var(--bg-color);
+            border-radius: 8px;
+        }
+
+        .density-level {
+            font-weight: bold;
+        }
+
+        .density-bar {
+            flex-grow: 1;
+            height: 10px;
+            background: #ddd;
+            margin: 0 1rem;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .density-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
         }
 
         .image-display {
-            max-width: 100%;
-            height: auto;
-            margin: 20px 0;
-            border-radius: 4px;
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .btn {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         .loading {
             display: none;
-            text-align: center;
-            margin: 20px 0;
+            margin: 1rem 0;
         }
 
-        .loading:after {
-            content: "...";
-            animation: dots 1s steps(5, end) infinite;
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--secondary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
         }
 
-        @keyframes dots {
-            0%, 20% { content: "."; }
-            40% { content: ".."; }
-            60% { content: "..."; }
-            80%, 100% { content: ""; }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .error-message {
-            color: #ff0000;
-            text-align: center;
-            margin: 10px 0;
+            color: var(--accent-color);
+            margin: 1rem 0;
             display: none;
+        }
+
+        .history-section {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .history-card {
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .history-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-users"></i>
+                CrowdSense
+            </div>
+            <div class="header-actions">
+                <button class="btn" onclick="clearHistory()">
+                    <i class="fas fa-trash"></i> Clear History
+                </button>
+            </div>
+        </div>
+    </header>
+
     <div class="container">
-        <h1>Crowd Counter</h1>
-        
-        <div class="upload-section">
-            <input type="file" id="fileInput" accept="image/*">
-            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                Select Image
-            </button>
-            <p>or drag and drop an image here</p>
+        <div class="main-content">
+            <div class="upload-section">
+                <h2><i class="fas fa-cloud-upload-alt"></i> Upload Image</h2>
+                <div class="dropzone" id="dropzone">
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #ccc;"></i>
+                    <p>Drag and drop your image here or click to browse</p>
+                </div>
+                <button class="btn" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-folder-open"></i> Select File
+                </button>
+                
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing image...</p>
+                </div>
+                
+                <div class="error-message"></div>
+            </div>
+
+            <div class="analysis-section">
+                <h2><i class="fas fa-chart-bar"></i> Analysis Results</h2>
+                <div class="result-card">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Total Count</h3>
+                            <div class="stat-value" id="crowdCount">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Density Level</h3>
+                            <div class="stat-value" id="densityLevel">Low</div>
+                        </div>
+                    </div>
+
+                    <div class="density-indicator">
+                        <span class="density-level">Crowd Density:</span>
+                        <div class="density-bar">
+                            <div class="density-fill" id="densityBar"></div>
+                        </div>
+                        <span id="densityPercentage">0%</span>
+                    </div>
+
+                    <img id="heatmapImage" class="image-display" alt="Heatmap Overlay">
+                </div>
+            </div>
         </div>
 
-        <div class="loading" id="loadingIndicator">Processing</div>
-        <div class="error-message" id="errorMessage"></div>
-
-        <div class="results-section" id="resultsSection">
-            <div class="result-card">
-                <div class="count-display">
-                    Crowd Count: <span id="crowdCount">0</span>
-                </div>
-                <img id="heatmapImage" class="image-display" alt="Heatmap Overlay">
-            </div>
+        <div class="history-section">
+            <h2><i class="fas fa-history"></i> Analysis History</h2>
+            <div class="history-grid" id="historyGrid"></div>
         </div>
     </div>
 
     <script>
-        const uploadSection = document.querySelector('.upload-section');
+        // DOM Elements
+        const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('fileInput');
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        const resultsSection = document.getElementById('resultsSection');
+        const loadingIndicator = document.querySelector('.loading');
+        const resultCard = document.querySelector('.result-card');
         const crowdCount = document.getElementById('crowdCount');
+        const densityLevel = document.getElementById('densityLevel');
+        const densityBar = document.getElementById('densityBar');
+        const densityPercentage = document.getElementById('densityPercentage');
         const heatmapImage = document.getElementById('heatmapImage');
-        const errorMessage = document.getElementById('errorMessage');
+        const errorMessage = document.querySelector('.error-message');
+        const historyGrid = document.getElementById('historyGrid');
 
         // Drag and drop handlers
-        uploadSection.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadSection.style.borderColor = '#45a049';
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, preventDefaults, false);
         });
 
-        uploadSection.addEventListener('dragleave', (e) => {
+        function preventDefaults(e) {
             e.preventDefault();
-            uploadSection.style.borderColor = '#ccc';
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, highlight, false);
         });
 
-        uploadSection.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadSection.style.borderColor = '#ccc';
-            const files = e.dataTransfer.files;
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropzone.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            dropzone.classList.remove('dragover');
+        }
+
+        dropzone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        // File input handler
+        fileInput.addEventListener('change', function(e) {
+            handleFiles(this.files);
+        });
+
+        function handleFiles(files) {
             if (files.length > 0) {
                 processImage(files[0]);
             }
-        });
+        }
 
-        // File input handler
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                processImage(e.target.files[0]);
-            }
-        });
+        // Calculate density level
+        function calculateDensityLevel(count) {
+            if (count < 50) return { level: 'Low', percentage: 20, color: '#2ecc71' };
+            if (count < 100) return { level: 'Moderate', percentage: 40, color: '#f1c40f' };
+            if (count < 200) return { level: 'High', percentage: 60, color: '#e67e22' };
+            if (count < 400) return { level: 'Very High', percentage: 80, color: '#e74c3c' };
+            return { level: 'Extreme', percentage: 100, color: '#c0392b' };
+        }
 
+        // Process image
         async function processImage(file) {
             // Reset UI
             errorMessage.style.display = 'none';
-            resultsSection.style.display = 'none';
+            resultCard.style.display = 'none';
             loadingIndicator.style.display = 'block';
+            heatmapImage.style.display = 'none';
 
             try {
                 const formData = new FormData();
@@ -192,9 +405,26 @@
                 const result = await response.json();
 
                 // Update UI with results
+                const density = calculateDensityLevel(result.count);
+                
                 crowdCount.textContent = result.count;
+                densityLevel.textContent = density.level;
+                densityBar.style.width = `${density.percentage}%`;
+                densityBar.style.backgroundColor = density.color;
+                densityPercentage.textContent = `${density.percentage}%`;
+                
                 heatmapImage.src = 'http://localhost:8000' + result.heatmap_url;
-                resultsSection.style.display = 'block';
+                heatmapImage.style.display = 'block';
+                resultCard.style.display = 'block';
+
+                // Add to history
+                addToHistory({
+                    count: result.count,
+                    densityLevel: density.level,
+                    heatmapUrl: result.heatmap_url,
+                    timestamp: new Date().toLocaleString()
+                });
+
             } catch (error) {
                 errorMessage.textContent = 'Error processing image. Please try again.';
                 errorMessage.style.display = 'block';
@@ -202,6 +432,53 @@
                 loadingIndicator.style.display = 'none';
             }
         }
+
+        // History management
+        function addToHistory(analysis) {
+            let history = getHistory();
+            history.unshift(analysis);
+            history = history.slice(0, 6); // Keep only last 6 analyses
+            localStorage.setItem('crowdAnalysisHistory', JSON.stringify(history));
+            updateHistoryDisplay();
+        }
+
+        function getHistory() {
+            const history = localStorage.getItem('crowdAnalysisHistory');
+            return history ? JSON.parse(history) : [];
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('crowdAnalysisHistory');
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const history = getHistory();
+            historyGrid.innerHTML = history.map(item => `
+                <div class="history-card">
+                    <img src="http://localhost:8000${item.heatmapUrl}" alt="Historical heatmap">
+                    <div class="history-stats">
+                        <p><strong>Count:</strong> ${item.count}</p>
+                        <p><strong>Density:</strong> ${item.densityLevel}</p>
+                        <p><small>${item.timestamp}</small></p>
+                    </div>
+                </div>
+            `).join('');
+
+            if (history.length === 0) {
+                historyGrid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                        <i class="fas fa-history" style="font-size: 2rem; color: #ccc;"></i>
+                        <p>No analysis history available</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize history display on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateHistoryDisplay();
+        });
     </script>
 </body>
 </html>
