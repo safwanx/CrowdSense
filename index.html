@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>CrowdSense | Real-Time Crowd Density Estimation</title>
+  <meta
+    name="description"
+    content="CrowdSense: real-time crowd counting and density monitoring with a Multifaceted Attention Network adapted to Arab-context scenes. B.Sc. senior project, Imam Abdulrahman Bin Faisal University."
+  >
+  <meta name="theme-color" content="#f8f7f0">
+
+  <meta property="og:title" content="CrowdSense">
+  <meta property="og:description" content="Real-time crowd density estimation and monitoring with multifaceted attention.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://safwanx.github.io/CrowdSense/">
+  <meta property="og:image" content="https://safwanx.github.io/CrowdSense/assets/figures/teaser.jpg">
+  <meta property="og:image:alt" content="A night-time frame of Masjid al-Haram shown as input with count, predicted density map, and density overlay.">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="canonical" href="https://safwanx.github.io/CrowdSense/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@300..800&amp;display=swap"
+    rel="stylesheet"
+  >
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <script>
+    // Resolve the theme before first paint: a saved choice wins, otherwise follow the system.
+    (function () {
+      var root = document.documentElement;
+      root.classList.add("js");
+      var theme = null;
+      try { theme = localStorage.getItem("theme"); } catch (error) {}
+      if (theme !== "light" && theme !== "dark") {
+        theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      root.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <link rel="stylesheet" href="assets/site/styles.css">
+  <script src="assets/site/script.js" defer></script>
+</head>
+
+<body id="top">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="shell nav-wrap">
+      <a class="brand" href="#top" aria-label="CrowdSense, back to top">
+        <svg class="brand-mark" viewBox="0 0 64 64" width="32" height="32" aria-hidden="true" focusable="false">
+          <rect width="64" height="64" rx="14" fill="#185f65"/>
+          <g fill="#9ef5fd">
+            <circle cx="21" cy="20" r="5.5"/>
+            <circle cx="43" cy="20" r="5.5"/>
+            <circle cx="32" cy="24" r="6"/>
+            <rect x="15.5" y="27" width="11" height="17" rx="3"/>
+            <rect x="37.5" y="27" width="11" height="17" rx="3"/>
+            <rect x="26" y="31.5" width="12" height="19" rx="3" stroke="#185f65" stroke-width="2.5"/>
+          </g>
+          <path d="M15 55h34" stroke="#e09675" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <span class="brand-name">CrowdSense</span>
+      </a>
+
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-label="Open navigation"
+        aria-expanded="false"
+        aria-controls="site-nav"
+      >
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav id="site-nav" class="site-nav" aria-label="Primary navigation">
+        <a href="#abstract" data-spy>Abstract</a>
+        <a href="#demo" data-spy>Demo</a>
+        <a href="#method" data-spy>Method</a>
+        <a href="#results" data-spy>Results</a>
+        <a href="#code" data-spy>Code</a>
+        <a href="#cite" data-spy>Cite</a>
+        <a class="nav-pill" href="https://github.com/safwanx/CrowdSense" target="_blank" rel="noreferrer">GitHub ↗</a>
+      </nav>
+
+      <button class="theme-toggle" type="button" aria-label="Switch to dark theme" title="Switch to dark theme" data-theme-toggle>
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M20.4 14.3A8.6 8.6 0 0 1 9.7 3.6a8.6 8.6 0 1 0 10.7 10.7Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M12 2.6v2.3M12 19.1v2.3M2.6 12h2.3M19.1 12h2.3M5.4 5.4 7 7M17 17l1.6 1.6M5.4 18.6 7 17M17 7l1.6-1.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="intro" aria-labelledby="page-title">
+      <div class="shell intro-grid">
+        <div class="intro-copy">
+          <p class="label">B.Sc. Senior Project · Imam Abdulrahman Bin Faisal University · 2025</p>
+          <h1 id="page-title">Crowd<span>Sense</span></h1>
+          <p class="lede">Real-time crowd density estimation and monitoring with multifaceted attention</p>
+          <p class="author-list">
+            Rayan Al-Masad,
+            <a href="https://safwanx.github.io/" target="_blank" rel="noreferrer">Safwan Nabeel</a>,
+            Basel Alabdullah, Abdulrahman Aldubayyan, and Amr Alanazi
+          </p>
+          <ul class="affiliations">
+            <li>Department of Computer Information Systems, College of Computer Science &amp; Information Technology</li>
+            <li>Imam Abdulrahman Bin Faisal University, Dammam, Saudi Arabia</li>
+            <li>Supervised by Mr. Sardar Zafar Iqbal</li>
+            <li>Submitted to the ISA Saudi Automation Conference (ISASC) 2025</li>
+          </ul>
+          <nav class="link-row" aria-label="Project resources">
+            <a href="https://github.com/safwanx/CrowdSense" target="_blank" rel="noreferrer">Code</a>
+            <a href="HTML%20%26%20CSS/index.html">Dashboard demo</a>
+            <a href="#results">Results</a>
+            <a href="#cite">BibTeX</a>
+          </nav>
+        </div>
+
+        <aside class="finding" aria-labelledby="finding-title">
+          <p class="label" id="finding-title">Key result · Arab-context scenes</p>
+          <dl>
+            <div>
+              <dt>Counting error (MAE)</dt>
+              <dd>
+                <span class="from">87.3</span><span class="arrow" aria-hidden="true">→</span><span class="visually-hidden"> to </span><strong>62.8</strong>
+              </dd>
+            </div>
+            <div>
+              <dt>Count accuracy vs. manual counts</dt>
+              <dd><strong>87%</strong></dd>
+            </div>
+          </dl>
+          <p class="finding-note">MAE before and after fine-tuning MAN on 400 annotated Saudi crowd images (2,000 after augmentation), a 28.1% reduction. Accuracy is from system testing on video feeds.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="figure-row" aria-label="Overview figure">
+      <div class="shell">
+        <figure>
+          <div class="plate">
+            <img
+              src="assets/figures/teaser.jpg"
+              alt="Three views of the same night-time frame of Masjid al-Haram in Makkah: the input frame with a predicted count of 785.2, the predicted density map brightest around the Kaaba, and the density map blended over the frame."
+              width="2196"
+              height="463"
+              fetchpriority="high"
+            >
+          </div>
+          <figcaption class="caption">
+            <strong>From frame to count.</strong>
+            CrowdSense regresses a density map (b) whose sum is the crowd count shown in (a); the
+            overlay (c) is what operators see on the dashboard. In scenes this dense, people
+            occlude each other too heavily to be detected one by one, so the model estimates how
+            many people occupy each region instead.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <div class="deep">
+      <section id="abstract" class="block">
+        <div class="shell block-grid">
+          <h2 class="label">Abstract</h2>
+
+          <div class="block-body tight">
+            <p class="abstract" data-reveal>
+              Saudi Arabia is preparing to host millions of visitors at the Hajj, Riyadh Season, the
+              Asian Cup 2027, and Expo 2030, while manual CCTV monitoring is limited by human
+              attention and reaction time. CrowdSense is a real-time crowd monitoring system that
+              estimates crowd counts and density maps from camera footage, visualizes them on a web
+              dashboard, and raises threshold-based alerts. It builds on the Multifaceted Attention
+              Network (MAN), which combines global transformer attention with learnable region
+              attention to cope with the large scale variation in crowd scenes. Because public
+              benchmarks contain few scenes with traditional Arab attire such as thobes, shemaghs,
+              hijabs, and niqabs, we fine-tuned the model on a custom Arab-context set of 400
+              annotated images from Hajj gatherings and local festivals, augmented to 2,000.
+              Adaptation reduced counting MAE on Arab-context scenes from 87.3 to 62.8 (28.1%). In
+              system testing, the deployed pipeline reached 87% count accuracy against manual
+              counts, triggered alerts in 2.1&nbsp;s, and processed a single stream in 0.8&nbsp;s;
+              with ten concurrent streams, processing time exceeded the 2&nbsp;s target.
+            </p>
+
+            <ul class="item-list" aria-label="Contributions">
+              <li data-reveal>
+                <h3>Arab-context adaptation</h3>
+                <p>A culturally specific annotated crowd set and a fine-tuned MAN model that lowers counting error on Saudi scenes by 28.1% MAE.</p>
+              </li>
+              <li data-reveal>
+                <h3>An end-to-end system</h3>
+                <p>A FastAPI inference service, an image-analysis page, and a monitoring dashboard with normal, density, and overlay views.</p>
+              </li>
+              <li data-reveal>
+                <h3>Tested against requirements</h3>
+                <p>A system test plan and report covering accuracy, latency, alerting, and load, with failures and open issues stated.</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section id="demo" class="block">
+      <div class="shell">
+        <div class="block-grid">
+          <h2 class="label">Demo</h2>
+
+          <div data-reveal>
+            <h3 class="section-title">One model, four very different crowds</h3>
+            <p class="prose">
+              Pick a scene, then switch between the input with its predicted count, the density
+              map, and the overlay. The clip keeps its place when you change view, so you can see
+              what the model attends to at each moment.
+            </p>
+          </div>
+        </div>
+
+        <div class="viewer block-wide" data-viewer data-reveal>
+          <div class="viewer-controls">
+            <fieldset class="seg">
+              <legend>Scene</legend>
+              <button type="button" aria-pressed="true" data-scene
+                data-count="count_makkah" data-density="density_makkah" data-overlay="overlay_makkah"
+                data-caption="Masjid al-Haram, Makkah. Extreme density, night lighting, and strong perspective: heads near the Kaaba are a few pixels wide.">Makkah</button>
+              <button type="button" aria-pressed="false" data-scene
+                data-count="iau-vid1_count" data-density="iau-vid1_density" data-overlay="iau-vid1_overlay"
+                data-caption="IAU College of Computer Science and Information Technology atrium. Sparse groups in traditional Saudi attire, the kind of scene the Arab-context set targets.">IAU</button>
+              <button type="button" aria-pressed="false" data-scene
+                data-count="count_nyc" data-density="density_nyc" data-overlay="overlay_nyc"
+                data-caption="Times Square, New York. Large faces in the foreground and a dense crowd in the distance in the same frame.">Times Square</button>
+              <button type="button" aria-pressed="false" data-scene
+                data-count="count" data-density="density" data-overlay="overlay"
+                data-caption="Overhead concourse. A top-down view where every person is visible and roughly the same size.">Concourse</button>
+            </fieldset>
+
+            <fieldset class="seg">
+              <legend>View</legend>
+              <button type="button" aria-pressed="false" data-view="count">Input + count</button>
+              <button type="button" aria-pressed="false" data-view="density">Density</button>
+              <button type="button" aria-pressed="true" data-view="overlay">Overlay</button>
+            </fieldset>
+          </div>
+
+          <div class="screen">
+            <video
+              src="media/overlay_makkah.mp4"
+              poster="assets/figures/posters/overlay_makkah.jpg"
+              controls
+              muted
+              loop
+              playsinline
+              preload="metadata"
+              aria-describedby="viewer-caption"
+            ></video>
+            <span class="screen-tag" data-viewer-tag>Overlay</span>
+          </div>
+          <p class="caption" id="viewer-caption" data-viewer-caption>Masjid al-Haram, Makkah. Extreme density, night lighting, and strong perspective: heads near the Kaaba are a few pixels wide.</p>
+        </div>
+
+        <div class="block-grid block-wide">
+          <h3 class="label">Interface</h3>
+
+          <div data-reveal>
+            <div class="shot-pair">
+              <figure>
+                <div class="plate">
+                  <img
+                    src="assets/figures/upload_demo.jpg"
+                    alt="CrowdSense image analysis page: an upload panel and results showing a total count of 84, a Moderate density level, a 40% density bar, and a heatmap over a crowd of men in thobes and shemaghs."
+                    width="1280"
+                    height="745"
+                    loading="lazy"
+                  >
+                </div>
+                <figcaption class="caption">
+                  <strong>Image analysis.</strong> Upload an image; the API returns the count and a
+                  heatmap overlay.
+                </figcaption>
+              </figure>
+              <figure>
+                <div class="plate">
+                  <img
+                    src="assets/figures/dashboard.jpg"
+                    alt="CrowdSense monitoring dashboard with overview cards, a live Times Square video with normal, density map, and overlay buttons, live analytics, recommended actions, and recent alerts."
+                    width="1920"
+                    height="1339"
+                    loading="lazy"
+                  >
+                </div>
+                <figcaption class="caption">
+                  <strong>Monitoring dashboard.</strong> Three view modes, live analytics,
+                  recommended actions, and severity-coded alerts.
+                  <a class="text-link" href="HTML%20%26%20CSS/dashboard.html">Open the demo</a>.
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="method" class="block">
+      <div class="shell">
+        <div class="block-grid">
+          <h2 class="label">Method</h2>
+
+          <div data-reveal>
+            <h3 class="section-title">Density regression with multifaceted attention</h3>
+            <p class="prose">
+              A VGG-19 backbone extracts features at 1/32 resolution. A four-layer transformer
+              encoder mixes a small share of global attention with learnable region attention,
+              which decides for every location how large a neighbourhood to look at, so large
+              nearby heads and tiny distant ones are both handled. A convolutional head turns the
+              result into a density map; its sum is the count.
+            </p>
+          </div>
+        </div>
+
+        <figure class="block-wide" data-reveal>
+          <div class="plate">
+            <img
+              src="assets/figures/pipeline.svg"
+              alt="Inference pipeline: an RGB frame resized so its short side is 512 pixels goes through a VGG-19 backbone, a four-layer transformer encoder combining 0.1 times global attention with learnable region attention, and a convolutional regression head. The density map is summed to give the count and color-mapped onto the frame as a heatmap. Local attention regularization and instance attention are training-only."
+              width="1240"
+              height="380"
+              loading="lazy"
+            >
+          </div>
+          <figcaption class="caption">
+            <strong>Inference pipeline.</strong>
+            The architecture is the Multifaceted Attention Network of Lin et al. (CVPR 2022).
+            Local Attention Regularization and Instance Attention shape training only; at inference
+            the model is a single forward pass with no person detector.
+          </figcaption>
+        </figure>
+
+        <div class="block-grid block-wide">
+          <h3 class="label">Components</h3>
+
+          <div data-reveal>
+            <ul class="row-list">
+              <li>
+                <p class="row-key">Learnable region attention</p>
+                <p>Learns a per-location attention region, so the receptive field adapts to the scale of the heads around it.</p>
+              </li>
+              <li>
+                <p class="row-key">Global attention</p>
+                <p>Standard transformer attention over the whole frame, weighted 0.1 and added to the local term.</p>
+              </li>
+              <li>
+                <p class="row-key">Local attention regularization</p>
+                <p>Training loss that encourages similar attention for objects of similar real size.</p>
+              </li>
+              <li>
+                <p class="row-key">Instance attention</p>
+                <p>Training loss that down-weights noisy head annotations.</p>
+              </li>
+              <li>
+                <p class="row-key">Serving</p>
+                <p>FastAPI resizes each upload so its short side is 512&nbsp;px, runs the model on GPU when available, and returns the count with a JET heatmap blended 60:40 over the image.</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="block-grid block-wide">
+          <h3 class="label">System</h3>
+
+          <div data-reveal>
+            <p class="prose">
+              Four layers: cameras or recorded video feed the fine-tuned model, whose outputs pass
+              through a database and stream processor to the web dashboard.
+            </p>
+            <figure style="margin-top: 24px; max-width: 620px;">
+              <div class="plate">
+                <img
+                  src="assets/figures/system_architecture.png"
+                  alt="Four stacked layers connected by upward arrows: input layer with surveillance cameras and recorded videos; AI processing layer with the fine-tuned MAN architecture; data management layer with a database and stream processor; frontend layer with the web dashboard."
+                  width="1600"
+                  height="1152"
+                  loading="lazy"
+                >
+              </div>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="results" class="block">
+      <div class="shell block-grid">
+        <h2 class="label">Results</h2>
+
+        <div class="block-body tight">
+          <article class="result" data-reveal>
+            <h3 class="section-title">Fine-tuning on Arab-context scenes cuts counting error by 28%</h3>
+            <p class="prose">
+              Counting error on held-out Arab-context scenes before and after fine-tuning MAN on
+              the custom set of 400 annotated images from Hajj gatherings and local festivals,
+              augmented to 2,000. Lower is better.
+            </p>
+
+            <div class="table-wrap">
+              <table class="data">
+                <thead>
+                  <tr>
+                    <th scope="col">Model</th>
+                    <th scope="col" class="num">MAE</th>
+                    <th scope="col" class="num">MSE</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">MAN, before adaptation</th><td class="num">87.3</td><td class="num">134.5</td></tr>
+                  <tr><th scope="row">MAN, fine-tuned on Arab-context set</th><td class="num"><span class="hl">62.8</span></td><td class="num"><span class="hl">98.2</span></td></tr>
+                </tbody>
+                <tfoot>
+                  <tr><td>Relative reduction</td><td class="num">28.1%</td><td class="num">27.0%</td></tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <p class="note">
+              The Arab-context set is not distributed, so these numbers cannot be reproduced from
+              the repository.
+            </p>
+
+            <details class="more">
+              <summary>Reference: MAN on public benchmarks</summary>
+              <p class="note" style="margin-top: 0;">
+                Results reported for MAN by Lin et al. (2022), with the change relative to the
+                Bayesian Loss baseline. CrowdSense deploys this architecture; these are not
+                CrowdSense measurements.
+              </p>
+              <div class="table-wrap">
+                <table class="data">
+                  <thead>
+                    <tr>
+                      <th scope="col">Dataset</th>
+                      <th scope="col" class="num">MAE</th>
+                      <th scope="col" class="num">MSE</th>
+                      <th scope="col" class="num">MAE vs. BL</th>
+                      <th scope="col" class="num">MSE vs. BL</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><th scope="row">ShanghaiTech A</th><td class="num">56.8</td><td class="num">90.3</td><td class="num">−9.6%</td><td class="num">−11.3%</td></tr>
+                    <tr><th scope="row">UCF-QNRF</th><td class="num">77.3</td><td class="num">131.5</td><td class="num">−12.9%</td><td class="num">−15.1%</td></tr>
+                    <tr><th scope="row">JHU-Crowd++</th><td class="num">53.4</td><td class="num">209.9</td><td class="num">−28.8%</td><td class="num">−30.0%</td></tr>
+                    <tr><th scope="row">NWPU-Crowd</th><td class="num">76.5</td><td class="num">323.0</td><td class="num">−27.4%</td><td class="num">−28.9%</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          </article>
+
+          <article class="result" data-reveal>
+            <h3 class="section-title">The system meets its targets up to five concurrent streams</h3>
+            <p class="prose">
+              System testing ran from 16 February to 5 April 2025 against the requirements in the
+              project's SRS. Count accuracy is agreement between predicted and manual counts on
+              test video feeds.
+            </p>
+
+            <dl class="stats four" style="margin-top: 28px;">
+              <div><dt>Count accuracy</dt><dd>87%</dd></div>
+              <div><dt>Single stream</dt><dd>0.8 s</dd></div>
+              <div><dt>Alert response</dt><dd>2.1 s</dd></div>
+              <div><dt>Dashboard render</dt><dd>1.7 s</dd></div>
+            </dl>
+
+            <div class="table-wrap">
+              <table class="data">
+                <thead>
+                  <tr>
+                    <th scope="col">Measurement</th>
+                    <th scope="col" class="num">Result</th>
+                    <th scope="col" class="num">Requirement</th>
+                    <th scope="col">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row">Count accuracy, low / medium / high density</th><td class="num">87% / 86% / 85%</td><td class="num">≥ 85%</td><td>Pass</td></tr>
+                  <tr><th scope="row">Five concurrent streams</th><td class="num">1.9 s</td><td class="num">≤ 2 s</td><td>Pass</td></tr>
+                  <tr><th scope="row">Ten concurrent streams</th><td class="num"><span class="hl">2.3 s</span></td><td class="num">≤ 2 s</td><td>Fail</td></tr>
+                  <tr><th scope="row">End-to-end pipeline latency, average</th><td class="num">4.2 s</td><td class="num">≤ 5 s</td><td>Pass</td></tr>
+                  <tr><th scope="row">Alert trigger response</th><td class="num">2.1 s</td><td class="num">≤ 3 s</td><td>Pass</td></tr>
+                  <tr><th scope="row">Dashboard render</th><td class="num">1.7 s</td><td class="num">≤ 2 s</td><td>Pass</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p class="note">
+              Of all test cases, 78% passed, 12% passed with minor issues, 5% failed, and 5% could
+              not be completed on the available hardware. Testing logged 23 issues: none critical,
+              3 high, 8 medium, 7 low, and 5 enhancement requests.
+            </p>
+          </article>
+
+          <article class="result" data-reveal>
+            <h3 class="section-title">Across scenes</h3>
+            <figure style="margin-top: 24px;">
+              <div class="plate">
+                <img
+                  src="assets/figures/scenes.jpg"
+                  alt="Density overlays on four scenes: a dense night crowd around the Kaaba, a sparse indoor gathering in the IAU atrium, a busy Times Square sidewalk, and an overhead view of people crossing a concourse."
+                  width="1938"
+                  height="1202"
+                  loading="lazy"
+                >
+              </div>
+              <figcaption class="caption">
+                The same model on extreme density with perspective distortion, sparse indoor groups
+                in traditional attire, mixed near and far pedestrians, and a top-down view.
+              </figcaption>
+            </figure>
+          </article>
+
+          <article class="result" data-reveal>
+            <h3 class="section-title">Reading these results</h3>
+            <ul class="caveats">
+              <li>The Arab-context set is small and was collected and annotated by the team; other Saudi venues, camera heights, and lighting conditions were not measured.</li>
+              <li>The benchmark table reproduces published MAN numbers for context; this project does not re-evaluate MAN on those datasets.</li>
+              <li>Latency and load figures come from the team's test environment. Full-scale testing at Hajj-like volumes was not possible, and performance degraded beyond 10 streams or 100 concurrent users.</li>
+              <li>In the dashboard demo, summary statistics, alerts, and flow rate are simulated; only the video views come from the model.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="code" class="block">
+      <div class="shell block-grid">
+        <h2 class="label">Code</h2>
+
+        <div class="block-body">
+          <div data-reveal>
+            <h3 class="section-title">Run the inference API</h3>
+            <p class="prose">
+              With Python 3.9 or newer. Place a checkpoint at
+              <code>backend/weights/model.pth</code> or set <code>CROWDSENSE_WEIGHTS</code>; weights
+              are not stored in the repository. Then open <code>frontend.html</code> and drop in a
+              crowd image.
+            </p>
+
+            <div class="code-block">
+              <button class="copy-btn" type="button" data-copy-target="#quickstart">Copy</button>
+              <pre id="quickstart"><code>git clone https://github.com/safwanx/CrowdSense.git
+cd CrowdSense
+pip install -r backend/requirements.txt
+cd backend
+python -m uvicorn main:app</code></pre>
+            </div>
+
+            <div class="code-block">
+              <button class="copy-btn" type="button" data-copy-target="#curl">Copy</button>
+              <pre id="curl"><code>curl -F "file=@crowd.jpg" http://localhost:8000/predict/
+# {"count": 84, "heatmap_url": "/static/heatmap_84.jpg", "status": "success"}</code></pre>
+            </div>
+
+            <nav class="link-row" style="margin-top: 26px;" aria-label="Documentation">
+              <a href="https://github.com/safwanx/CrowdSense#readme" target="_blank" rel="noreferrer">README</a>
+              <a href="https://github.com/safwanx/CrowdSense/blob/main/backend/weights/README.md" target="_blank" rel="noreferrer">Weights</a>
+              <a href="HTML%20%26%20CSS/index.html">Dashboard demo</a>
+            </nav>
+          </div>
+
+          <div data-reveal>
+            <h3 class="label" style="margin-bottom: 14px;">Repository</h3>
+            <ul class="row-list">
+              <li><p class="row-key"><code>backend/</code></p><p>FastAPI service; <code>/predict/</code> returns the count and a heatmap overlay.</p></li>
+              <li><p class="row-key"><code>backend/models/</code></p><p>MAN: VGG-19 backbone and transformer with learnable region attention.</p></li>
+              <li><p class="row-key"><code>frontend.html</code></p><p>Image-upload analysis page that talks to the backend.</p></li>
+              <li><p class="row-key"><code>HTML &amp; CSS/</code>, <code>JS/</code></p><p>Landing page and monitoring dashboards for Times Square, IAU, and Makkah.</p></li>
+              <li><p class="row-key"><code>Misc/</code></p><p>Viewer and editor for <code>.mat</code> head-point annotations.</p></li>
+              <li><p class="row-key"><code>media/</code></p><p>Demo clips with count, density, and overlay renderings.</p></li>
+            </ul>
+          </div>
+
+          <div data-reveal>
+            <h3 class="label" style="margin-bottom: 14px;">Team</h3>
+            <ul class="row-list">
+              <li><p class="row-key">Rayan Al-Masad<span class="role">Project manager</span></p><p>Project plan, requirements, schedule and risk management, test plan, final report.</p></li>
+              <li><p class="row-key"><a class="text-link" href="https://safwanx.github.io/" target="_blank" rel="noreferrer">Safwan Nabeel</a><span class="role">AI specialist</span></p><p>Arab-context dataset, MAN implementation and fine-tuning, heatmap generation, evaluation metrics, AI testing.</p></li>
+              <li><p class="row-key">Amr Alanazi<span class="role">AI backend developer</span></p><p>Video processing pipeline, backend APIs, performance optimization, model training.</p></li>
+              <li><p class="row-key">Abdulrahman Aldubayyan<span class="role">Full-stack developer</span></p><p>Dashboard UI and visualizations, authentication, responsive design, alert interfaces.</p></li>
+              <li><p class="row-key">Basel Alabdullah<span class="role">Full-stack developer</span></p><p>Database schema, historical reporting, frontend–backend integration, admin interface, WebSockets.</p></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="cite" class="deep block">
+      <div class="shell block-grid">
+        <h2 class="label">Cite</h2>
+
+        <div class="cite-layout" data-reveal>
+          <h3 class="section-title">BibTeX</h3>
+          <div class="code-block">
+            <button class="copy-btn" type="button" data-copy-target="#bibtex">Copy</button>
+            <pre id="bibtex"><code>@misc{almasad2025crowdsense,
+  title        = {CrowdSense: Real-Time Crowd Density Estimation and Monitoring
+                  with Multifaceted Attention},
+  author       = {Al-Masad, Rayan and Nabeel, Safwan and Alabdullah, Basel and
+                  Aldubayyan, Abdulrahman and Alanazi, Amr},
+  year         = {2025},
+  note         = {B.Sc. senior project, Imam Abdulrahman Bin Faisal University},
+  howpublished = {\url{https://github.com/safwanx/CrowdSense}}
+}</code></pre>
+          </div>
+          <p class="note">
+            Please also cite the MAN paper: Lin, Ma, Ji, Wang, and Hong, “Boosting Crowd Counting
+            via Multifaceted Attention,” CVPR 2022.
+          </p>
+          <p class="note">
+            We thank our supervisor, Mr. Sardar Zafar Iqbal, and our evaluators, Dr. Saqib Saeed
+            and Mr. Yousof AlMunsour, for their guidance and feedback.
+          </p>
+          <span class="visually-hidden" role="status" aria-live="polite" data-copy-status></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="deep site-footer">
+    <div class="shell footer-inner">
+      <p>
+        Code released under the
+        <a href="https://github.com/safwanx/CrowdSense/blob/main/LICENSE" target="_blank" rel="noreferrer">MIT License</a>.
+        Footage, data, and model terms are separate; see the
+        <a href="https://github.com/safwanx/CrowdSense/blob/main/THIRD_PARTY.md" target="_blank" rel="noreferrer">third-party notices</a>.
+      </p>
+      <div>
+        <a href="https://github.com/safwanx/CrowdSense" target="_blank" rel="noreferrer">Code</a>
+        <a href="https://github.com/safwanx/CrowdSense/issues" target="_blank" rel="noreferrer">Issues</a>
+        <a href="https://safwanx.github.io/" target="_blank" rel="noreferrer">Safwan Nabeel</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

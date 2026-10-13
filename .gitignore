@@ -1,0 +1,24 @@
+# Model weights and runtime output
+backend/weights/*
+!backend/weights/README.md
+backend/static/
+*.pth
+*.pt
+
+# Datasets and annotation work
+datasets/
+annotations/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

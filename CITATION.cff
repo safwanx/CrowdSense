@@ -1,0 +1,43 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "CrowdSense: Real-Time Crowd Density Estimation and Monitoring with Multifaceted Attention"
+abstract: >-
+  AI-powered crowd monitoring system that estimates crowd counts and density maps with a
+  Multifaceted Attention Network adapted to Arab-context scenes, served through a FastAPI
+  backend and a web dashboard. B.Sc. senior project, Imam Abdulrahman Bin Faisal University.
+authors:
+  - family-names: Al-Masad
+    given-names: Rayan
+  - family-names: Nabeel
+    given-names: Safwan
+  - family-names: Alabdullah
+    given-names: Basel
+  - family-names: Aldubayyan
+    given-names: Abdulrahman
+  - family-names: Alanazi
+    given-names: Amr
+license: MIT
+repository-code: "https://github.com/safwanx/CrowdSense"
+date-released: 2025-05-01
+keywords:
+  - crowd counting
+  - density estimation
+  - multifaceted attention
+  - crowd monitoring
+references:
+  - type: conference-paper
+    title: "Boosting Crowd Counting via Multifaceted Attention"
+    authors:
+      - family-names: Lin
+        given-names: Hui
+      - family-names: Ma
+        given-names: Zhiheng
+      - family-names: Ji
+        given-names: Rongrong
+      - family-names: Wang
+        given-names: Yaowei
+      - family-names: Hong
+        given-names: Xiaopeng
+    collection-title: "IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)"
+    year: 2022

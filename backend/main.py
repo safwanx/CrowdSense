@@ -45,13 +45,20 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 logger.info(f"Using device: {device}")
 
+# Model weights: set CROWDSENSE_WEIGHTS, or place the checkpoint at backend/weights/model.pth
+WEIGHTS_PATH = os.environ.get(
+    "CROWDSENSE_WEIGHTS",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "weights", "model.pth"),
+)
+
 # Initialize model and load weights to the appropriate device
 try:
     model = vgg19_trans()
-    model.load_state_dict(torch.load("C:/Users/srian/Downloads/MAN/model_1.pth", map_location=device))
+    model.load_state_dict(torch.load(WEIGHTS_PATH, map_location=device))
     model.to(device)
     model.eval()
-    logger.info("Model loaded successfully")
+    logger.info(f"Model loaded successfully from {WEIGHTS_PATH}")
+    logger.info("Double-click frontend.html in the repository root to interact with the app")
 except Exception as e:
     logger.error(f"Failed to load model: {str(e)}")
     raise
