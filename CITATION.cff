@@ -19,6 +19,7 @@ authors:
     given-names: Amr
 license: MIT
 repository-code: "https://github.com/safwanx/CrowdSense"
+url: "https://safwanx.github.io/CrowdSense/"
 date-released: 2025-05-01
 keywords:
   - crowd counting

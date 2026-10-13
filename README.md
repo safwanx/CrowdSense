@@ -20,6 +20,7 @@
 <p align="center"><b>B.Sc. Senior Project · May 2025</b> &nbsp;·&nbsp; Submitted to the ISA Saudi Automation Conference (ISASC) 2025</p>
 
 <p align="center">
+  <a href="https://safwanx.github.io/CrowdSense/"><strong>Project Page</strong></a> &nbsp;•&nbsp;
   <a href="#quick-start"><strong>Quick Start</strong></a> &nbsp;•&nbsp;
   <a href="#results"><strong>Results</strong></a> &nbsp;•&nbsp;
   <a href="#citation"><strong>Citation</strong></a>
@@ -27,6 +28,7 @@
 
 <p align="center">
   <a href="https://github.com/safwanx/CrowdSense"><img src="https://img.shields.io/badge/Code-GitHub-181717?logo=github&amp;logoColor=white" alt="Code on GitHub"></a>
+  <a href="https://safwanx.github.io/CrowdSense/"><img src="https://img.shields.io/badge/Project-Page-095255?logo=githubpages&amp;logoColor=white" alt="Project page"></a>
   <img src="https://img.shields.io/badge/IAU-Senior_Project_2025-132e3f" alt="IAU senior project 2025">
   <img src="https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&amp;logoColor=white" alt="Python 3.9+">
   <img src="https://img.shields.io/badge/PyTorch-2.x-EE4C2C?logo=pytorch&amp;logoColor=white" alt="PyTorch 2.x">
