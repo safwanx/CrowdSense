@@ -7,10 +7,10 @@ abstract: >-
   Multifaceted Attention Network adapted to Arab-context scenes, served through a FastAPI
   backend and a web dashboard. B.Sc. senior project, Imam Abdulrahman Bin Faisal University.
 authors:
-  - family-names: Al-Masad
-    given-names: Rayan
   - family-names: Nabeel
     given-names: Safwan
+  - family-names: Al-Masad
+    given-names: Rayan
   - family-names: Alabdullah
     given-names: Basel
   - family-names: Aldubayyan

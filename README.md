@@ -1,8 +1,8 @@
 <h1 align="center">CrowdSense: Real-Time Crowd Density Estimation and Monitoring with Multifaceted Attention</h1>
 
 <p align="center">
-  <b>Rayan Al-Masad</b> &nbsp;
   <b><a href="https://safwanx.github.io/">Safwan Nabeel</a></b> &nbsp;
+  <b>Rayan Al-Masad</b> &nbsp;
   <b>Basel Alabdullah</b> &nbsp;
   <b>Abdulrahman Aldubayyan</b> &nbsp;
   <b>Amr Alanazi</b>
@@ -227,8 +227,8 @@ CrowdSense/
 
 | Member | Role | Contributions |
 | :--- | :--- | :--- |
-| Rayan Al-Masad | Project manager | Project plan, requirements, schedule and risk management, test plan, final report |
 | [Safwan Nabeel](https://safwanx.github.io/) | AI specialist | Arab-context dataset, MAN implementation and fine-tuning, attention tuning, heatmap generation, evaluation metrics, AI testing |
+| Rayan Al-Masad | Project manager | Project plan, requirements, schedule and risk management, test plan, final report |
 | Amr Alanazi | AI backend developer | Video processing pipeline, backend APIs, performance optimization, model training, technical documentation |
 | Abdulrahman Aldubayyan | Full-stack developer | Dashboard UI and visualizations, authentication, responsive design, alert interfaces |
 | Basel Alabdullah | Full-stack developer | Database schema, historical analysis and reporting, frontend–backend integration, admin interface, WebSockets |
@@ -238,10 +238,10 @@ CrowdSense/
 If you use CrowdSense, please cite the project and the MAN paper it builds on:
 
 ```bibtex
-@misc{almasad2025crowdsense,
+@misc{nabeel2025crowdsense,
   title        = {CrowdSense: Real-Time Crowd Density Estimation and Monitoring
                   with Multifaceted Attention},
-  author       = {Al-Masad, Rayan and Nabeel, Safwan and Alabdullah, Basel and
+  author       = {Nabeel, Safwan and Al-Masad, Rayan and Alabdullah, Basel and
                   Aldubayyan, Abdulrahman and Alanazi, Amr},
   year         = {2025},
   note         = {B.Sc. senior project, Imam Abdulrahman Bin Faisal University},
